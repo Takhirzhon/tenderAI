@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 from urllib.parse import urlencode
 from dotenv import load_dotenv
 
-
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROZORRO_API_URL = "https://public.api.openprocurement.org/api/2.4/tenders"
 OUTPUT_DIR = "../tenders"
 MAX_RESULTS = 3
@@ -26,7 +26,7 @@ def download_prozorro_tenders(topic=None, total_to_download=1, days_back=None):
     print(f"🔍 Downloading tenders for topic: {topic}")
 
     # Load topic keywords
-    keywords_path = "../data/keywords.json"
+    keywords_path = os.path.join(BASE_DIR, "../data/keywords.json")
     if not os.path.exists(keywords_path):
         raise FileNotFoundError("❌ keywords.json not found!")
 
