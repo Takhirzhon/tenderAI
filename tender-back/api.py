@@ -4,6 +4,7 @@ from core.claude_text_extractor import build_tender_text, ask_claude, format_exc
 from core.downloader import setup_environment, download_prozorro_tenders
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from core.uploader import handle_uploaded_tender
 
 
 app = FastAPI(title="AI Tender Optimizer API", version="1.0.0")
@@ -63,14 +64,12 @@ def download_endpoint(request: DownloadTendersRequest):
         print("❌ Error in download_endpoint:", str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.post("/upload_tender")
 async def upload_tender(file: UploadFile = File(...)):
     contents = await file.read()
-    save_path = f"./uploaded/{file.filename}"
-    with open(save_path, "wb") as f:
-        f.write(contents)
-
-    #result = analyze_uploaded_file(save_path)  # Your Claude analysis logic
-    #return result
+    filename = file.filename or "uploaded_file"
+    result = handle_uploaded_tender(contents, filename)
+    return result
 
 

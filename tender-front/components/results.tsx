@@ -7,10 +7,12 @@ import Image from "next/image"
 import { Input } from "./ui/input"
 import { useTranslation } from "react-i18next"
 import DownloadTender from "../app/download_tender"
+import UploadTender from "../app/upload-tender"
 
 export default function TestResults() {
   const { t } = useTranslation()
   const [activeTest, setActiveTest] = useState<"upload" | "link" | "downloader" | null>(null)
+  const [file, setFile] = useState<File | null>(null)
 
   const openModal = (test: "upload" | "link" | "downloader") => {
     setActiveTest(test)
@@ -85,13 +87,24 @@ export default function TestResults() {
               </button>
 
               {activeTest === "upload" && (
-                <>
-                  <h3 className="text-2xl font-bold text-center mb-4">{t("upload_title")}</h3>
+                <div className="flex flex-col items-center space-y-4">
+                  <label
+                    htmlFor="file-upload"
+                    className="cursor-pointer bg-blue-100 hover:bg-blue-200 text-blue-800 font-medium py-2 px-4 rounded shadow transition duration-300"
+                  >
+                    📂 Choose a File
+                  </label>
                   <input
+                    id="file-upload"
                     type="file"
-                    className="w-full border border-gray-300 dark:border-gray-700 p-2 rounded"
+                    accept=".pdf,.docx,.json"
+                    className="hidden"
+                    onChange={(e) => setFile(e.target.files?.[0] || null)}
                   />
-                </>
+                  {file && (
+                    <p className="text-sm text-gray-700 dark:text-gray-200">📎 {file.name}</p>
+                  )}
+                </div>
               )}
 
               {activeTest === "link" && (

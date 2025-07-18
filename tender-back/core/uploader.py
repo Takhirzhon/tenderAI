@@ -1,40 +1,62 @@
 import os
 import json
-import streamlit as st
+from typing import Dict, Any
 
-UPLOAD_DIR = "../uploaded"
+UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "../uploaded")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-def handle_uploaded_tender():
-    st.markdown("---")
-    st.subheader("📤 Завантажте власні тендерні файли ProZorro")
+def handle_uploaded_tender(file_bytes: bytes, filename: str) -> Dict[str, Any]:
+    """
+    Save uploaded tender file and return metadata.
+    Supports .json and .pdf files.
 
-    uploaded_file = st.file_uploader("Завантажте JSON або PDF файл", type=["json", "pdf"])
+    Args:
+        file_bytes: Raw bytes of the uploaded file
+        filename: Name of the uploaded file (e.g. tender123.json)
 
-    if uploaded_file is not None:
-        filename = uploaded_file.name
-        file_path = os.path.join(UPLOAD_DIR, filename)
+    Returns:
+        Dictionary with analysis info or status
+    """
+    file_path = os.path.join(UPLOAD_DIR, filename)
 
-        # Save the uploaded file
-        with open(file_path, "wb") as f:
-            f.write(uploaded_file.read())
+    # Save the file
+    with open(file_path, "wb") as f:
+        f.write(file_bytes)
 
-        st.success(f"✅ Завантажено і збережено як {filename}")
+    # Handle JSON file (parse & return metadata)
+    if filename.endswith(".json"):
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
 
-        if filename.endswith(".json"):
-            try:
-                with open(file_path, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                tender_id = os.path.splitext(filename)[0]
-                st.session_state.tenders_downloaded.append({
+            tender_id = os.path.splitext(filename)[0]
+            return {
+                "status": "success",
+                "source": "json",
+                "tender": {
                     "id": tender_id,
                     "title": data.get("title", "Без назви"),
                     "date": data.get("dateModified", ""),
                     "budget": data.get("value", {}).get("amount", 0),
                     "file": filename
-                })
-                st.success("✅ JSON тендер додано до списку аналізу.")
-            except Exception as e:
-                st.error(f"❌ Не вдалося розпарсити завантажений JSON файл: {e}")
-        else:
-            st.info("📄 PDF тендер завантажено. Підтримка PDF аналізу буде додана в майбутньому.")
+                }
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"❌ Failed to parse JSON: {e}"
+            }
+
+    elif filename.endswith(".pdf") or filename.endswith(".docx"):
+        return {
+            "status": "success",
+            "source": "file",
+            "message": f"📄 {filename} uploaded. PDF/DOCX analysis coming soon.",
+            "file": filename
+        }
+
+    else:
+        return {
+            "status": "error",
+            "message": "❌ Unsupported file type"
+        }

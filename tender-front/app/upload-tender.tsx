@@ -43,16 +43,40 @@ export default function UploadTender() {
   }
 
   return (
-    <div className="p-4">
-      <input type="file" accept=".pdf,.docx,.json" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-      <button onClick={handleUpload} className="mt-4 bg-blue-600 text-white px-4 py-2 rounded">
-        Upload & Analyze
+    <div className="space-y-4 text-center">
+      {/* ⬇ Beautiful styled file input */}
+      <div className="flex flex-col items-center space-y-2">
+        <label
+          htmlFor="file-upload"
+          className="cursor-pointer bg-blue-100 hover:bg-blue-200 text-blue-800 font-medium py-2 px-4 rounded shadow transition duration-300"
+        >
+          📂 Choose a File
+        </label>
+        <input
+          id="file-upload"
+          type="file"
+          accept=".pdf,.docx,.json"
+          className="hidden"
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+        />
+        {file && (
+          <p className="text-sm text-gray-700 dark:text-gray-200">📎 {file.name}</p>
+        )}
+      </div>
+
+      <button
+        onClick={handleUpload}
+        disabled={!file}
+        className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+      >
+        📊 Upload & Analyze
       </button>
 
-      {isLoading && <p className="mt-4">{loadingMsg}</p>}
+      {isLoading && <p className="mt-4 animate-pulse">{loadingMsg}</p>}
+
       {result && (
-        <div className="mt-6 bg-gray-100 p-4 rounded shadow">
-          <h3 className="text-lg font-bold">📊 Tender Analysis Result</h3>
+        <div className="mt-6 bg-gray-100 p-4 rounded shadow text-left max-h-64 overflow-y-auto">
+          <h3 className="text-lg font-bold">📈 Tender Analysis Result</h3>
           <pre className="text-sm whitespace-pre-wrap">{JSON.stringify(result, null, 2)}</pre>
         </div>
       )}
