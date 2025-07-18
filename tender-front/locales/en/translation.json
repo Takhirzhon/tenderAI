@@ -1,0 +1,15 @@
+{
+  "hero_title_line1": "Analysis, Evaluation and Optimization",
+  "hero_title_line2": "all in one place",
+  "hero_button": "How to use it?",
+  "upload_title": "Upload File",
+  "upload_desc": "Upload your own ProZorro tender files",
+  "link_title": "Insert Link",
+  "link_desc": "Paste the tender link",
+  "downloader_title": "Tender Downloader",
+  "downloader_desc": "Download tenders from the ProZorro API",
+  "nav": {
+    "home": "Home",
+    "results": "Results"
+  }
+}

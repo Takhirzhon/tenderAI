@@ -1,0 +1,15 @@
+{
+  "hero_title_line1": "Аналіз, оцінка та оптимізація",
+  "hero_title_line2": "все в одному місці",
+  "hero_button": "Як це використовувати?",
+  "upload_title": "Завантажити файл",
+  "upload_desc": "Завантажте власні тендерні файли ProZorro",
+  "link_title": "Вставте посилання",
+  "link_desc": "Вставте посилання на тендер",
+  "downloader_title": "Завантажувач тендерів",
+  "downloader_desc": "Завантажити тендери з ProZorro API",
+  "nav": {
+    "home": "Головна",
+    "results": "Результати"
+  }
+}
