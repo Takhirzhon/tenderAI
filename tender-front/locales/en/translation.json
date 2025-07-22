@@ -10,6 +10,6 @@
   "downloader_desc": "Download tenders from the ProZorro API",
   "nav": {
     "home": "Home",
-    "results": "Results"
+    "options": "Options"
   }
 }

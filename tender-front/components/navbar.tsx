@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 import {
-  ChevronDown, Globe, Home, Menu, Moon, Sun, Trophy, X
+  ChevronDown, Globe, Home, Menu, Moon, Sun, Trophy
 } from 'lucide-react'
 
 const languageOptions = [
@@ -29,8 +29,11 @@ export default function Navbar() {
 
   const navItems = [
     { href: "#hero", label: t("nav.home"), icon: Home },
-    { href: "#results", label: t("nav.results"), icon: Trophy }
+    { href: "#options", label: t("nav.options"), icon: Globe },
+    { href: "#results", label: "Results", icon: Trophy },
+    { href: "#company-profile", label: "Company Profile", icon: Menu } 
   ]
+  
 
   const toggleMenu = useCallback(() => setIsOpen(prev => !prev), [])
 
@@ -91,14 +94,6 @@ export default function Navbar() {
                 <Image src="https://cone.red/wp-content/themes/cone-red/assets/images/logo.svg" alt="Logo" width={100} height={100} className="rounded-xl text-black dark:text-white" />
               </div>
               <div className="flex items-center gap-2 lg:hidden h-8">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={toggleMenu}
-                  className="text-black bg-gray-200 dark:text-white dark:bg-gray-800 p-1"
-                >
-                  {isOpen ? <X className="h-8 w-8" /> : <Menu className="h-8 w-8" />}
-                </Button>
               </div>
             </div>
 

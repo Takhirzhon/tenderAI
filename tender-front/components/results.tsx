@@ -1,163 +1,66 @@
 "use client"
 
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { X } from "lucide-react"
-import Image from "next/image"
-import { Input } from "./ui/input"
-import { useTranslation } from "react-i18next"
-import DownloadTender from "../app/download_tender"
-import UploadTender from "../app/upload-tender"
+import { useEffect, useState } from "react"
+import { Download } from "lucide-react"
+import { motion } from "framer-motion"
 
-export default function TestResults() {
-  const { t } = useTranslation()
-  const [activeTest, setActiveTest] = useState<"upload" | "link" | "downloader" | null>(null)
-  const [file, setFile] = useState<File | null>(null)
+export default function ResultsSection() {
+  const [result, setResult] = useState<any>(null)
 
-  const openModal = (test: "upload" | "link" | "downloader") => {
-    setActiveTest(test)
+  useEffect(() => {
+    const loadResult = () => {
+      const stored = localStorage.getItem("tender_result")
+      if (stored) {
+        setResult(JSON.parse(stored))
+      }
+    }
+
+    loadResult()
+    window.addEventListener("tender_result_updated", loadResult)
+    return () => window.removeEventListener("tender_result_updated", loadResult)
+  }, [])
+
+  const downloadExcel = async () => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/download_excel`, {
+      method: "POST",
+      body: JSON.stringify(result),
+      headers: { "Content-Type": "application/json" }
+    })
+
+    const blob = await res.blob()
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.setAttribute("download", "analyzed_tender.xlsx")
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
-  const closeModal = () => {
-    setActiveTest(null)
-  }
+  if (!result) return null
 
   return (
-    <section id="results" className="py-16 px-4 mb-20">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col sm:flex-row flex-wrap justify-center items-stretch gap-6">
-          <TestCard
-            title={t("upload_title")}
-            src="/upload.png"
-            color="bg-green-100 dark:bg-green-900"
-            onClick={() => openModal("upload")}
-          >
-            <p className="text-sm text-gray-700 dark:text-gray-300 text-center mt-auto">
-              {t("upload_desc")}
-            </p>
-          </TestCard>
-
-          <TestCard
-            title={t("link_title")}
-            src="/link.png"
-            color="bg-blue-100 dark:bg-blue-900"
-            onClick={() => openModal("link")}
-          >
-            <p className="text-sm text-gray-700 dark:text-gray-300 text-center mt-auto">
-              {t("link_desc")}
-            </p>
-          </TestCard>
-
-          <TestCard
-            title={t("downloader_title")}
-            src="/download.png"
-            color="bg-yellow-100 dark:bg-yellow-900"
-            onClick={() => openModal("downloader")}
-          >
-            <p className="text-sm text-gray-700 dark:text-gray-300 text-center mt-auto">
-              {t("downloader_desc")}
-            </p>
-          </TestCard>
-        </div>
-      </div>
-
-      <AnimatePresence>
-        {activeTest && (
-          <motion.div
-            key="modal"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4"
-            onClick={closeModal}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md shadow-lg relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={closeModal}
-                className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
-              >
-                <X size={24} />
-              </button>
-
-              {activeTest === "upload" && (
-                <div className="flex flex-col items-center space-y-4">
-                  <label
-                    htmlFor="file-upload"
-                    className="cursor-pointer bg-blue-100 hover:bg-blue-200 text-blue-800 font-medium py-2 px-4 rounded shadow transition duration-300"
-                  >
-                    📂 Choose a File
-                  </label>
-                  <input
-                    id="file-upload"
-                    type="file"
-                    accept=".pdf,.docx,.json"
-                    className="hidden"
-                    onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  />
-                  {file && (
-                    <p className="text-sm text-gray-700 dark:text-gray-200">📎 {file.name}</p>
-                  )}
-                </div>
-              )}
-
-              {activeTest === "link" && (
-                <>
-                  <h3 className="text-2xl font-bold text-center mb-4">{t("link_title")}</h3>
-                  <Input
-                    type="text"
-                    placeholder="https://..."
-                    className="w-full border border-gray-300 dark:border-gray-700 p-2 rounded"
-                  />
-                </>
-              )}
-
-              {activeTest === "downloader" && (
-                <>
-                  <h3 className="text-2xl font-bold text-center mb-4">{t("downloader_title")}</h3>
-                  <DownloadTender /> {/* ✅ Use the component here */}
-                </>
-
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </section>
-  )
-}
-
-function TestCard({
-  title,
-  src,
-  color,
-  onClick,
-  children,
-}: {
-  title: string
-  src: string
-  color: string
-  onClick: () => void
-  children?: React.ReactNode
-}) {
-  return (
-    <motion.div
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className={`rounded-lg shadow-lg p-6 cursor-pointer w-full sm:w-64 flex flex-col items-center justify-start transition-all duration-300 hover:shadow-xl ${color} min-h-[300px]`}
-      onClick={onClick}
+    <motion.section
+      id="results"
+      className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 max-w-4xl mx-auto mt-20 border border-gray-200 dark:border-gray-700"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      viewport={{ once: true }}
     >
-      <div className="bg-white dark:bg-gray-800 rounded-full p-4 mb-4 shadow-md">
-        <Image src={src || "/placeholder.svg"} alt={`${title} icon`} width={64} height={64} className="rounded-full" />
-      </div>
-      <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2 text-center">{title}</h3>
-      {children}
-    </motion.div>
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+        Tender Analysis Result
+      </h2>
+      <p className="text-gray-600 dark:text-gray-300 mb-6">
+        Аналіз завершено. Натисніть кнопку нижче, щоб завантажити результат у форматі Excel.
+      </p>
+      <button
+        onClick={downloadExcel}
+        className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-5 rounded-lg transition-colors"
+      >
+        <Download className="h-5 w-5" />
+        Завантажити Excel
+      </button>
+    </motion.section>
   )
 }

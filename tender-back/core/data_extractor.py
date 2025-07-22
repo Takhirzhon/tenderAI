@@ -8,22 +8,27 @@ TEXT_DIR = "C:/Users/tashmatov/tender/extracted/"
 os.makedirs(TEXT_DIR, exist_ok=True)
 
 
-def extract_text_from_pdf(pdf_path: str) -> str:
+def extract_text_from_pdf(input_pdf) -> str:
     """
     Extracts text from a PDF file using PyMuPDF (fitz).
-    Returns the full text as a string.
+    Accepts either file path (str) or bytes.
     """
-    if not os.path.exists(pdf_path):
-        raise FileNotFoundError(f"❌ PDF not found at: {pdf_path}")
+    if isinstance(input_pdf, str):
+        if not os.path.exists(input_pdf):
+            raise FileNotFoundError(f"❌ PDF not found at: {input_pdf}")
+        doc = fitz.open(input_pdf)
+        filename = os.path.basename(input_pdf).replace(".pdf", ".txt")
+    else:
+        # Assume it's bytes
+        doc = fitz.open(stream=input_pdf, filetype="pdf")
+        filename = "extracted_from_bytes.txt"
 
     full_text = ""
-    with fitz.open(pdf_path) as doc:
-        for page_num, page in enumerate(doc): # type: ignore
-            text = page.get_text("text")
-            print(f"Page {page_num+1} text:\n{text}")
-            full_text += text + "\n"
+    for page_num, page in enumerate(doc):  # type: ignore
+        text = page.get_text("text")
+        print(f"Page {page_num+1} text:\n{text}")
+        full_text += text + "\n"
 
-    filename = os.path.basename(pdf_path).replace(".pdf", ".txt")
     txt_path = os.path.join(TEXT_DIR, filename)
     pathlib.Path(txt_path).write_text(full_text, encoding="utf-8")
 

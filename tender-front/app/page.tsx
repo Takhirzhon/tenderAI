@@ -3,7 +3,9 @@
 import { useEffect } from 'react'
 import Navbar from '@/components/navbar'
 import Hero from '@/components/hero'
-import Results from '@/components/results'
+import OptionsPage from '@/components/optionstoanalyze'
+import Results from "@/components/results"
+import Profile from "./companyProfile"
 
 export default function Home() {
   useEffect(() => {
@@ -32,7 +34,11 @@ export default function Home() {
       <Navbar />
       <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-40 pb-24">
         <Hero />
+        <OptionsPage />
         <Results />
+        <section id="company-profile" className="mt-00">
+        <Profile />
+        </section>
       </main>
     </div>
   )

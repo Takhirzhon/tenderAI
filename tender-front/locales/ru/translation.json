@@ -10,6 +10,6 @@
   "downloader_desc": "Загрузить тендеры с ProZorro API",
   "nav": {
     "home": "Главная",
-    "results": "Результаты"
+    "options": "Опции"
   }
 }
