@@ -5,6 +5,7 @@ from typing import Dict, Any
 UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "../uploaded")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+
 def handle_uploaded_tender(file_bytes: bytes, filename: str) -> Dict[str, Any]:
     """
     Save uploaded tender file and return metadata.
@@ -38,25 +39,19 @@ def handle_uploaded_tender(file_bytes: bytes, filename: str) -> Dict[str, Any]:
                     "title": data.get("title", "Без назви"),
                     "date": data.get("dateModified", ""),
                     "budget": data.get("value", {}).get("amount", 0),
-                    "file": filename
-                }
+                    "file": filename,
+                },
             }
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"❌ Failed to parse JSON: {e}"
-            }
+            return {"status": "error", "message": f"❌ Failed to parse JSON: {e}"}
 
     elif filename.endswith(".pdf") or filename.endswith(".docx"):
         return {
             "status": "success",
             "source": "file",
             "message": f"📄 {filename} uploaded. PDF/DOCX analysis coming soon.",
-            "file": filename
+            "file": filename,
         }
 
     else:
-        return {
-            "status": "error",
-            "message": "❌ Unsupported file type"
-        }
+        return {"status": "error", "message": "❌ Unsupported file type"}

@@ -4,18 +4,33 @@ from openpyxl.utils import get_column_letter
 from io import BytesIO
 from typing import Union, List, Dict, Any
 
+
 def format_excel(ws):
     header_font = Font(bold=True, size=11)
-    header_alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
-    thin_border = Border(left=Side(style='thin'), right=Side(style='thin'),
-                         top=Side(style='thin'), bottom=Side(style='thin'))
+    header_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    thin_border = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin"),
+    )
 
-    col_widths = [40,30,15,15,20,25,40,15,50,30,40,20,20,30]
+    col_widths = [40, 30, 15, 15, 20, 25, 40, 15, 50, 30, 40, 20, 20, 30]
     columns = [
-        "Назва тендеру","Замовник","Кінцевий термін подачі","Очікуваний бюджет (грн)",
-        "Локація проєкту","Тип проєкту","Необхідні документи","Потрібен АВК-5",
-        "Технічні вимоги","Умови оплати","Ресурси та матеріали","Реалістичність строків",
-        "Оцінка рентабельності","Назва файлу"
+        "Назва тендеру",
+        "Замовник",
+        "Кінцевий термін подачі",
+        "Очікуваний бюджет (грн)",
+        "Локація проєкту",
+        "Тип проєкту",
+        "Необхідні документи",
+        "Потрібен АВК-5",
+        "Технічні вимоги",
+        "Умови оплати",
+        "Ресурси та матеріали",
+        "Реалістичність строків",
+        "Оцінка рентабельності",
+        "Назва файлу",
     ]
 
     for col_num, (title, width) in enumerate(zip(columns, col_widths), start=1):
@@ -27,9 +42,9 @@ def format_excel(ws):
 
     return ws
 
+
 def generate_excel_from_result(
-    result: Union[Dict[str, Any], List[Dict[str, Any]]],
-    filename: str = "tender.xlsx"
+    result: Union[Dict[str, Any], List[Dict[str, Any]]], filename: str = "tender.xlsx"
 ) -> BytesIO:
     wb = Workbook()
     ws = wb.active
@@ -54,7 +69,7 @@ def generate_excel_from_result(
             item.get("resource_requirements", ""),
             item.get("timeline_feasibility", ""),
             item.get("profitability", ""),
-            item.get("filename", "")
+            item.get("filename", ""),
         ]
         for col_num, val in enumerate(values, start=1):
             cell = ws.cell(row=row_idx, column=col_num, value=val)

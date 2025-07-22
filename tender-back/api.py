@@ -1,11 +1,10 @@
-
-#FAST API
+# FAST API
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
 
-#CORE
+# CORE
 from core.analyze_tender import analyze_tender
 from core.extract_to_excel import generate_excel_from_result
 from core.downloader import download_prozorro_tenders
@@ -16,15 +15,13 @@ from core.uploader import handle_uploaded_tender
 from core.company_profile import CompanyProfile
 
 
-#Libraries
+# Libraries
 from pydantic import BaseModel
 import tempfile
 import shutil
 import json
 import os
 from typing import List, Dict, Any
-
-
 
 
 app = FastAPI(title="AI Tender Optimizer API", version="1.0.0")
@@ -36,40 +33,51 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 class LinkRequest(BaseModel):
     link: str
+
 
 class DownloadTendersRequest(BaseModel):
     topic: str
     total_to_download: int = 10
     days_back: int = 30
 
+
 class EstimateRequest(BaseModel):
     materials: dict
     labor: dict
     equipment: dict
 
+
 class ComplianceRequest(BaseModel):
     required_docs: list[str]
+
 
 class ProfitabilityRequest(BaseModel):
     tender_data: dict
     company_resources: dict
 
+
 class TenderHashRequest(BaseModel):
     tender_hash: str
 
+
 class TextRequest(BaseModel):
     text: str
+
 
 class BudgetRequest(BaseModel):
     budget_raw: str
 
 
-
 app.get("/")
+
+
 def root():
     return {"message": "TenderAI API is running"}
+
 
 @app.post("/download_prozorro_tenders")
 def download_endpoint(request: DownloadTendersRequest):
@@ -77,7 +85,7 @@ def download_endpoint(request: DownloadTendersRequest):
         tenders = download_prozorro_tenders(
             topic=request.topic,
             total_to_download=request.total_to_download,
-            days_back=request.days_back
+            days_back=request.days_back,
         )
         return {"count": len(tenders), "tenders": tenders}
     except Exception as e:
@@ -118,19 +126,17 @@ async def upload_tenders(files: List[UploadFile] = File(...)):
             text = extract_text_from_pdf(tmp_path)
             client = get_claude_client()
             analysis = analyze_tender(text, client)
-            all_results.append({
-                "status": "success",
-                "source": filename,
-                "analysis": analysis
-            })
+            all_results.append(
+                {"status": "success", "source": filename, "analysis": analysis}
+            )
         except Exception as e:
-            all_results.append({
-                "status": "error",
-                "source": filename,
-                "message": str(e)
-            })
+            all_results.append(
+                {"status": "error", "source": filename, "message": str(e)}
+            )
 
     return {"status": "success", "files": all_results}
+
+
 def merge_single_tender(raw: list[dict]) -> dict:
     """
     raw: [
@@ -159,15 +165,21 @@ def merge_single_tender(raw: list[dict]) -> dict:
         else:
             # pick first non‑“не вказано” or non‑empty
             picked = next(
-                (v for v in vals
-                 if isinstance(v, str) and v.strip() and not v.lower().startswith("не вказано")),
-                None
+                (
+                    v
+                    for v in vals
+                    if isinstance(v, str)
+                    and v.strip()
+                    and not v.lower().startswith("не вказано")
+                ),
+                None,
             )
             merged[key] = picked if picked is not None else vals[0]
 
     # join all source filenames
     merged["filename"] = "; ".join(item["source"] for item in raw)
     return merged
+
 
 @app.post("/download_excel")
 async def download_excel(request: Request):
@@ -188,7 +200,7 @@ async def download_excel(request: Request):
     return StreamingResponse(
         stream,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers=headers
+        headers=headers,
     )
 
 
@@ -200,10 +212,12 @@ def analyze_tender_endpoint(request: TenderHashRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/get_company_profile")
 def get_company_profile():
     profile = CompanyProfile()
     return profile.get_profile()
+
 
 @app.post("/update_company_profile")
 async def update_company_profile(request: Request):
@@ -211,4 +225,3 @@ async def update_company_profile(request: Request):
     profile = CompanyProfile()
     profile.update_profile(data)
     return {"status": "ok"}
-
