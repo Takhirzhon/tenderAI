@@ -13,6 +13,7 @@ from core.data_extractor import extract_text_from_pdf
 from core.analyze_link import analyze_tender_from_hash
 from core.uploader import handle_uploaded_tender
 from core.company_profile import CompanyProfile
+from core.generate_template import generate_filled_template
 
 
 # Libraries
@@ -70,6 +71,10 @@ class TextRequest(BaseModel):
 
 class BudgetRequest(BaseModel):
     budget_raw: str
+
+class TemplateRequest(BaseModel):
+    template_name: str
+    values: dict
 
 
 app.get("/")
@@ -225,3 +230,13 @@ async def update_company_profile(request: Request):
     profile = CompanyProfile()
     profile.update_profile(data)
     return {"status": "ok"}
+
+@app.post("/generate_template")
+async def generate_template(request: TemplateRequest):
+    buffer = generate_filled_template(request.template_name, request.values)
+
+    return StreamingResponse(
+        buffer,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": f"attachment; filename={request.template_name}_filled.docx"}
+    )

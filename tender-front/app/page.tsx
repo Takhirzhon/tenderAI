@@ -6,6 +6,7 @@ import Hero from '@/components/hero'
 import OptionsPage from '@/components/optionstoanalyze'
 import Results from "@/components/results"
 import Profile from "./companyProfile"
+import TemplateDoc from "./templateGenerator"
 
 export default function Home() {
   useEffect(() => {
@@ -38,6 +39,7 @@ export default function Home() {
         <Results />
         <section id="company-profile" className="mt-00">
         <Profile />
+        <TemplateDoc/>
         </section>
       </main>
     </div>

@@ -1,3 +1,5 @@
+# core/company_profile.py
+
 import json
 import os
 from datetime import datetime
@@ -30,7 +32,7 @@ class CompanyProfile:
                 "iban": "",
                 "swift": "",
             },
-            "vat_status": "Yes",
+            "vat_status": "",
             "financials": {
                 "last_year_revenue": "",
                 "net_profit": "",
