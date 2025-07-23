@@ -11,7 +11,11 @@ const inter = Inter({
 
 export const metadata = {
   title: "AI Tender Optimizer",
-  description: "Smart procurement assistant powered by AI"
+  description: "Smart procurement assistant powered by AI",
+  icons: {
+    icon: '/favicon.ico',
+  },
+
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
