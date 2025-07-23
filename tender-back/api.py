@@ -79,11 +79,13 @@ class TemplateRequest(BaseModel):
 
 
 
-app.get("/")
-
-
+@app.get("/")
 def root():
-    return {"message": "TenderAI API is running"}
+    return {"status": "✅ TenderAI API is live!"}
+
+@app.get("/health")
+def health():
+    return {"ok": True}
 
 
 @app.post("/download_prozorro_tenders")
