@@ -1,12 +1,27 @@
+# Web frameworks
+fastapi
+uvicorn[standard]
+
+# Frontend (if needed)
 streamlit
-openpyxl
-python-dotenv
+
+# Claude + API interaction
 anthropic
 requests
+python-dotenv
+
+# PDF and OCR handling
 pdfplumber
 PyMuPDF
 pdf2image
 pytesseract
+
+# Document and Excel handling
+openpyxl
+python-docx
+
+# Data processing
 pandas
-uvicorn[standard]
-fastapi
+
+# Optional: If using typing support or linting
+typing-extensions
