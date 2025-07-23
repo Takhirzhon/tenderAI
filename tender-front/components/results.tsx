@@ -1,10 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Download } from "lucide-react"
 import { motion } from "framer-motion"
 
 export default function ResultsSection() {
+  const { t } = useTranslation()
   const [result, setResult] = useState<any>(null)
 
   useEffect(() => {
@@ -49,17 +51,17 @@ export default function ResultsSection() {
       viewport={{ once: true }}
     >
       <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-        Tender Analysis Result
+        {t("results.title")}
       </h2>
       <p className="text-gray-600 dark:text-gray-300 mb-6">
-        Аналіз завершено. Натисніть кнопку нижче, щоб завантажити результат у форматі Excel.
+        {t("results.description")}
       </p>
       <button
         onClick={downloadExcel}
         className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-5 rounded-lg transition-colors"
       >
         <Download className="h-5 w-5" />
-        Завантажити Excel
+        {t("results.download_btn")}
       </button>
     </motion.section>
   )

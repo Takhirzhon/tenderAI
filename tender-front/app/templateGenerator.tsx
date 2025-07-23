@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 const availableTemplates = [
   "Contract notice",
@@ -9,6 +10,7 @@ const availableTemplates = [
   "Retention guarantee_rev",
   "Invitation to tender_works"
 ]
+
 function mergeSingleTender(raw: any[]): Record<string, any> {
   const analyses = raw.map((item) => item.analysis)
   const merged: Record<string, any> = {}
@@ -38,23 +40,25 @@ function mergeSingleTender(raw: any[]): Record<string, any> {
 }
 
 export default function TemplateGenerator() {
+  const { t } = useTranslation()
+
   const [template, setTemplate] = useState("")
   const [status, setStatus] = useState("")
 
   const handleSubmit = async () => {
     if (!template) return
-    setStatus("⏳ Generating...")
+    setStatus(t("template.status.generating"))
 
     try {
       const storedResult = localStorage.getItem("tender_result")
       if (!storedResult) {
-        setStatus("❌ No analyzed tender found.")
+        setStatus(t("template.status.no_data"))
         return
       }
 
       const parsed = JSON.parse(storedResult)
-      const tenderResult = mergeSingleTender(parsed)  // ✅ merged correctly
-      
+      const tenderResult = mergeSingleTender(parsed)
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/generate_template`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -71,23 +75,23 @@ export default function TemplateGenerator() {
       link.download = `${template}_filled.docx`
       link.click()
 
-      setStatus("✅ Done!")
+      setStatus(t("template.status.done"))
     } catch (err) {
       console.error("❌ Error generating template:", err)
-      setStatus("❌ Error generating document")
+      setStatus(t("template.status.error"))
     }
   }
 
   return (
     <div className="max-w-xl mx-auto mt-12 p-6 bg-white shadow rounded-xl space-y-6">
-      <h2 className="text-2xl font-bold">📝 Генерація шаблону документа</h2>
+      <h2 className="text-2xl font-bold">📝 {t("template.title")}</h2>
 
       <select
         value={template}
         onChange={(e) => setTemplate(e.target.value)}
         className="w-full border px-3 py-2 rounded"
       >
-        <option value="">Виберіть шаблон</option>
+        <option value="">{t("template.select")}</option>
         {availableTemplates.map((tpl) => (
           <option key={tpl} value={tpl}>
             {tpl}
@@ -96,11 +100,11 @@ export default function TemplateGenerator() {
       </select>
 
       <button
-        type="button"  // ✅ Prevents default submit behavior
+        type="button"
         onClick={handleSubmit}
         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
       >
-        📄 Створити документ
+        📄 {t("template.button")}
       </button>
 
       {status && <p className="text-center text-gray-600">{status}</p>}

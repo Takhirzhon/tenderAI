@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 import ResultsSection from "../components/results"
 
 type Analysis = {
@@ -28,19 +29,10 @@ type RawResult = {
 
 type MergedResult = Analysis & { filename: string }
 
-/**
- * Merge multiple RawResult[] into one MergedResult:
- * - required_documents: deduped union
- * - avk5_required: true if any file required it
- * - for strings: pick the first non‑“не вказано” value
- * - additional_requirements: shallow merge of all
- * - filename: semicolon‑joined list of sources
- */
 function mergeAnalyses(raw: RawResult[]): MergedResult {
   const analyses = raw.map((r) => r.analysis)
   const merged: any = {}
 
-  // list of Analysis keys we want to merge
   const keys = [
     "title",
     "issuer",
@@ -54,20 +46,17 @@ function mergeAnalyses(raw: RawResult[]): MergedResult {
     "payment_terms",
     "resource_requirements",
     "timeline_feasibility",
-    "profitability",
+    "profitability"
   ] as const
 
   for (const key of keys) {
     if (key === "required_documents") {
-      // flatten + unique
       merged.required_documents = Array.from(
         new Set(analyses.flatMap((a) => a.required_documents))
       )
     } else if (key === "avk5_required") {
-      // true if any
       merged.avk5_required = analyses.some((a) => a.avk5_required)
     } else {
-      // pick first non‑“не вказано” or fallback to the first
       const vals = analyses.map((a) => (a as any)[key] as string)
       const good = vals.find(
         (v) =>
@@ -79,30 +68,30 @@ function mergeAnalyses(raw: RawResult[]): MergedResult {
     }
   }
 
-  // merge any additional_requirements
   const extras = analyses
     .map((a) => a.additional_requirements ?? {})
     .reduce((acc, o) => ({ ...acc, ...o }), {})
+
   if (Object.keys(extras).length) {
     merged.additional_requirements = extras
   }
 
-  // join all the raw.source filenames into one field
   merged.filename = raw.map((r) => r.source).join("; ")
   return merged as MergedResult
 }
 
 export default function UploadTender() {
+  const { t } = useTranslation()
   const [files, setFiles] = useState<File[]>([])
-  const [loadingMsg, setLoadingMsg] = useState("Waiting to start...")
+  const [loadingMsg, setLoadingMsg] = useState(t("upload.status.waiting"))
   const [isLoading, setIsLoading] = useState(false)
 
   const messages = [
-    "📡 Fetching data...",
-    "🧠 Analyzing tender specs...",
-    "💰 Checking profitability...",
-    "📄 Looking for AVK5 estimates...",
-    "🚀 Almost there...",
+    t("upload.status.fetching"),
+    t("upload.status.analyzing"),
+    t("upload.status.profitability"),
+    t("upload.status.avk5"),
+    t("upload.status.done")
   ]
 
   const handleUpload = async () => {
@@ -125,28 +114,23 @@ export default function UploadTender() {
       )
       if (!res.ok) {
         const err = await res.json()
-        throw new Error(err.detail || `Error ${res.status}`)
+        throw new Error(err.detail || t("upload.status.error", { code: res.status }))
       }
+
       const { files: rawResults }: { files: RawResult[] } = await res.json()
 
       clearInterval(interval)
       setIsLoading(false)
 
-      // Merge into one
       const merged = rawResults.length > 1
         ? mergeAnalyses(rawResults)
-        : {
-          ...rawResults[0].analysis,
-          filename: rawResults[0].source,
-        }
+        : { ...rawResults[0].analysis, filename: rawResults[0].source }
 
-      // Store & notify your ResultsSection
       localStorage.setItem("tender_result", JSON.stringify(merged))
       window.dispatchEvent(new Event("tender_result_updated"))
 
-      // Reset UI
       setFiles([])
-      setLoadingMsg("✅ Аналіз завершено")
+      setLoadingMsg(t("upload.status.complete"))
     } catch (e: any) {
       clearInterval(interval)
       setIsLoading(false)
@@ -156,13 +140,12 @@ export default function UploadTender() {
 
   return (
     <div className="space-y-4 text-center">
-      {/* File picker */}
       <div className="flex flex-col items-center space-y-2">
         <label
           htmlFor="file-upload"
           className="cursor-pointer bg-blue-100 hover:bg-blue-200 text-blue-800 font-medium py-2 px-4 rounded"
         >
-          📂 Choose up to 5 files
+          📂 {t("upload.label")}
         </label>
         <input
           id="file-upload"
@@ -189,7 +172,7 @@ export default function UploadTender() {
         disabled={files.length === 0 || isLoading}
         className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
       >
-        📊 Upload & Analyze
+        📊 {t("upload.button")}
       </button>
 
       {isLoading && (
@@ -197,7 +180,6 @@ export default function UploadTender() {
           {loadingMsg}
         </p>
       )}
-
     </div>
   )
 }

@@ -4,7 +4,6 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X } from "lucide-react"
 import Image from "next/image"
-import { Input } from "./ui/input"
 import { useTranslation } from "react-i18next"
 import DownloadTender from "../app/download_tender"
 import UploadTender from "../app/upload-tender"
@@ -105,7 +104,7 @@ export default function TestResults() {
               {activeTest === "downloader" && (
                 <>
                   <h3 className="text-2xl font-bold text-center mb-4">{t("downloader_title")}</h3>
-                  <DownloadTender /> {/* ✅ Use the component here */}
+                  <DownloadTender /> {}
                 </>
 
               )}

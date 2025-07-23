@@ -11,5 +11,88 @@
   "nav": {
     "home": "Home",
     "options": "Options"
+  },
+  "loading": "🔄 Loading…",
+  "common": {
+    "save": "💾 Save",
+    "edit": "✏️ Edit"
+  },
+  "company_profile": {
+    "title": "🏢 Company Profile",
+    "company_name": "Company Name",
+    "registration_number": "Registration Number",
+    "edrpou": "EDRPOU",
+    "tax_certificate": "Tax Certificate",
+    "director": "Company Director",
+    "legal_address": "Legal Address",
+    "email": "Email",
+    "phone": "Phone",
+    "financial_info": "📊 Financial Information",
+    "last_year_revenue": "Revenue Last Year",
+    "net_profit": "Net Profit",
+    "avg_monthly_turnover": "Avg. Monthly Turnover",
+    "balance_sheet_link": "Balance Sheet Link"
+  },
+
+  "downloader": {
+    "topic": "Topic:",
+    "num_tenders": "Number of Tenders:",
+    "days_back": "Days Back:",
+    "download_btn": "Download",
+    "status_downloading": "⏳ Downloading…",
+    "status_success": "✅ Downloaded {{count}} tenders.",
+    "status_error": "❌ Error downloading.",
+    "untitled": "Untitled",
+    "options": {
+      "construction": "Construction",
+      "it": "IT",
+      "medical": "Medical Equipment"
+    }
+  },
+  "link": {
+    "placeholder": "Paste ProZorro hash (32‑char)…",
+    "button": "Download Excel",
+    "loading": [
+      "🔍 Parsing link...",
+      "📡 Contacting ProZorro API...",
+      "🧠 Claude analyzing...",
+      "📄 Structuring output...",
+      "✅ Almost done..."
+    ],
+    "error": {
+      "generic": "❌ Error downloading (code: {{code}})"
+    }
+  },
+  "template": {
+    "title": "Template Document Generation",
+    "select": "Select a template",
+    "button": "Generate Document",
+    "status": {
+      "generating": "⏳ Generating…",
+      "done": "✅ Done!",
+      "error": "❌ Error generating document",
+      "no_data": "❌ No analyzed tender found"
+    }
+  },
+  "upload": {
+    "label": "Choose up to 5 files",
+    "button": "Upload & Analyze",
+    "status": {
+      "waiting": "Waiting to start...",
+      "fetching": "📡 Fetching data...",
+      "analyzing": "🧠 Analyzing tender specs...",
+      "profitability": "💰 Checking profitability...",
+      "avk5": "📄 Looking for AVK5 estimates...",
+      "done": "🚀 Almost there...",
+      "complete": "✅ Analysis complete",
+      "error": "❌ Upload error (code: {{code}})"
+    }
+  },
+  "results": {
+    "title": "Tender Analysis Result",
+    "description": "Analysis complete. Click the button below to download the result as an Excel file.",
+    "download_btn": "Download Excel"
   }
+
 }
+
