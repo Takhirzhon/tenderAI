@@ -3,14 +3,16 @@
 const isProd = process.env.NODE_ENV === 'production';
 
 const nextConfig = {
-  images: {
-  },
-  basePath: isProd ? '/tender-front' : '',
-  assetPrefix: isProd ? '/tender-front/' : '',
   trailingSlash: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
+  images: {
+    domains: [],
+  },
 };
+
+module.exports = nextConfig;
+
 
 module.exports = nextConfig;
