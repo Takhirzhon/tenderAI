@@ -1,5 +1,5 @@
 # FAST API
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
@@ -19,11 +19,9 @@ from core.generate_template import generate_filled_template
 # Libraries
 from pydantic import BaseModel
 import tempfile
-import shutil
-import json
 import os
 import traceback
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 
 app = FastAPI(title="AI Tender Optimizer API", version="1.0.0")
@@ -74,9 +72,11 @@ class BudgetRequest(BaseModel):
     budget_raw: str
 
 
+
 class TemplateRequest(BaseModel):
     template_name: str
-    values: dict
+    tender_result: Dict
+
 
 
 app.get("/")
@@ -220,18 +220,18 @@ async def update_company_profile(request: Request):
 
 
 @app.post("/generate_template")
-async def generate_template(request: TemplateRequest):
+async def generate_template(request: TemplateRequest = Body(...)):
     try:
-        buffer = generate_filled_template(request.template_name, request.values)
+        buffer = generate_filled_template(
+            template_filename=request.template_name,
+            tender_result=request.tender_result  # ✅ ONLY this
+        )
 
         return StreamingResponse(
             buffer,
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            headers={
-                "Content-Disposition": f"attachment; filename={request.template_name}_filled.docx"
-            },
+            headers={"Content-Disposition": f"attachment; filename={request.template_name}_filled.docx"},
         )
     except Exception as e:
         print("❌ Template generation failed:", e)
-        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))

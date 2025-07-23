@@ -3,80 +3,80 @@
 import { useState } from "react"
 
 const availableTemplates = [
-    "Contract notice",
-    "Declaration objectivity confidentiality tender preparation",
-    "Tender Form supplies",
-    "Retention guarantee_rev",
-    "Invitation to tender_works"
-  ]
-  
+  "Contract notice",
+  "Declaration objectivity confidentiality tender preparation",
+  "Tender Form supplies",
+  "Retention guarantee_rev",
+  "Invitation to tender_works"
+]
+function mergeSingleTender(raw: any[]): Record<string, any> {
+  const analyses = raw.map((item) => item.analysis)
+  const merged: Record<string, any> = {}
+  const keys = Object.keys(analyses[0])
+
+  for (const key of keys) {
+    const vals = analyses.map((a) => a[key])
+    const example = vals[0]
+
+    if (Array.isArray(example)) {
+      merged[key] = [...new Set(vals.flat())]
+    } else if (typeof example === "boolean") {
+      merged[key] = vals.some(Boolean)
+    } else {
+      const picked = vals.find(
+        (v) =>
+          typeof v === "string" &&
+          v.trim() !== "" &&
+          !v.toLowerCase().startsWith("не вказано")
+      )
+      merged[key] = picked ?? vals[0]
+    }
+  }
+
+  merged["filename"] = raw.map((item) => item.source).join("; ")
+  return merged
+}
 
 export default function TemplateGenerator() {
   const [template, setTemplate] = useState("")
-  const [values, setValues] = useState<{ [key: string]: string }>({})
   const [status, setStatus] = useState("")
-
-  const handleChange = (key: string, val: string) => {
-    setValues((prev) => ({ ...prev, [key]: val }))
-  }
 
   const handleSubmit = async () => {
     if (!template) return
-
     setStatus("⏳ Generating...")
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/generate_template`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        template_name: template,
-        values
+
+    try {
+      const storedResult = localStorage.getItem("tender_result")
+      if (!storedResult) {
+        setStatus("❌ No analyzed tender found.")
+        return
+      }
+
+      const parsed = JSON.parse(storedResult)
+      const tenderResult = mergeSingleTender(parsed)  // ✅ merged correctly
+      
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/generate_template`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          template_name: template,
+          tender_result: tenderResult
+        })
       })
-    })
 
-    const blob = await res.blob()
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement("a")
-    link.href = url
-    link.download = `${template}_filled.docx`
-    link.click()
-    setStatus("✅ Done!")
-  }
+      const blob = await res.blob()
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `${template}_filled.docx`
+      link.click()
 
-  const renderFields = () => {
-    let placeholders: string[] = []
-  
-    switch (template) {
-      case "Contract notice":
-        placeholders = ["Назва контракту", "Місцезнаходження", "Дата", "Назва установи", "Опис контракту"]
-        break
-      case "Declaration objectivity confidentiality tender preparation":
-        placeholders = ["Ім'я", "Дата", "Підпис"]
-        break
-      case "Tender Form supplies":
-        placeholders = ["Tender Title", "Tender ID", "Supplier Name", "Date"]
-        break
-      case "Retention guarantee_rev":
-        placeholders = ["Guarantee Amount", "Project Name", "Valid Until", "Bank Name"]
-        break
-      case "Invitation to tender_works":
-        placeholders = ["Tender Name", "Deadline", "Location", "Client Name"]
-        break
-      default:
-        placeholders = []
+      setStatus("✅ Done!")
+    } catch (err) {
+      console.error("❌ Error generating template:", err)
+      setStatus("❌ Error generating document")
     }
-  
-    return placeholders.map((ph) => (
-      <div key={ph} className="mb-4">
-        <label className="block font-medium mb-1">{ph}</label>
-        <input
-          type="text"
-          className="w-full border px-3 py-2 rounded"
-          onChange={(e) => handleChange(ph, e.target.value)}
-        />
-      </div>
-    ))
   }
-  
 
   return (
     <div className="max-w-xl mx-auto mt-12 p-6 bg-white shadow rounded-xl space-y-6">
@@ -84,10 +84,7 @@ export default function TemplateGenerator() {
 
       <select
         value={template}
-        onChange={(e) => {
-          setTemplate(e.target.value)
-          setValues({})
-        }}
+        onChange={(e) => setTemplate(e.target.value)}
         className="w-full border px-3 py-2 rounded"
       >
         <option value="">Виберіть шаблон</option>
@@ -98,9 +95,8 @@ export default function TemplateGenerator() {
         ))}
       </select>
 
-      {template && renderFields()}
-
       <button
+        type="button"  // ✅ Prevents default submit behavior
         onClick={handleSubmit}
         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
       >

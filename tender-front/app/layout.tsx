@@ -3,22 +3,26 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import type { ReactNode } from "react"
 
+// Load Inter font with Latin and Cyrillic support
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
   variable: "--font-inter"
 })
 
+export const metadata = {
+  title: "AI Tender Optimizer",
+  description: "Smart procurement assistant powered by AI"
+}
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="uk">
-      <body className={`${inter.variable} font-sans`}>
+    <html lang="uk" className={inter.variable}>
+      <body className="font-sans">
         {/* 
-          suppressHydrationWarning tells React:
-          “I know this subtree may differ server↔client—ignore it.”
+          Use suppressHydrationWarning ONLY where needed 
+          (e.g. dynamic or client-only values rendered inside)
         */}
-        <div suppressHydrationWarning>
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   )
