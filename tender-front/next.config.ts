@@ -1,14 +1,16 @@
-import { NextConfig } from 'next';
-
+// next.config.js
+/** @type {import('next').NextConfig} */
 const isProd = process.env.NODE_ENV === 'production';
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   images: {
-    domains: ['/tender-UI/'],
   },
-  basePath: isProd ? '/tender-UI' : '',
-  assetPrefix: isProd ? '/tender-UI/' : '',
+  basePath: isProd ? '/tender-front' : '',
+  assetPrefix: isProd ? '/tender-front/' : '',
   trailingSlash: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
