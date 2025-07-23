@@ -22,6 +22,7 @@ import tempfile
 import shutil
 import json
 import os
+import traceback
 from typing import List, Dict, Any
 
 
@@ -71,6 +72,7 @@ class TextRequest(BaseModel):
 
 class BudgetRequest(BaseModel):
     budget_raw: str
+
 
 class TemplateRequest(BaseModel):
     template_name: str
@@ -143,18 +145,9 @@ async def upload_tenders(files: List[UploadFile] = File(...)):
 
 
 def merge_single_tender(raw: list[dict]) -> dict:
-    """
-    raw: [
-      {"status": "...", "source": "...", "analysis": {...}},
-      {"status": "...", "source": "...", "analysis": {...}},
-      ...
-    ]
-    Returns one merged dict of all analysis fields + 'filename'.
-    """
     analyses = [item["analysis"] for item in raw]
     merged: dict = {}
 
-    # list of all keys we expect in analysis
     keys = analyses[0].keys()
 
     for key in keys:
@@ -162,13 +155,10 @@ def merge_single_tender(raw: list[dict]) -> dict:
         example = vals[0]
 
         if isinstance(example, list):
-            # union of all lists
             merged[key] = list({v for sub in vals for v in sub})
         elif isinstance(example, bool):
-            # true if any file said true
             merged[key] = any(vals)
         else:
-            # pick first non‑“не вказано” or non‑empty
             picked = next(
                 (
                     v
@@ -181,7 +171,6 @@ def merge_single_tender(raw: list[dict]) -> dict:
             )
             merged[key] = picked if picked is not None else vals[0]
 
-    # join all source filenames
     merged["filename"] = "; ".join(item["source"] for item in raw)
     return merged
 
@@ -193,13 +182,11 @@ async def download_excel(request: Request):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Invalid JSON: {e}")
 
-    # If user sent the array of raw results, merge into one dict
     if isinstance(payload, list) and payload and "analysis" in payload[0]:
         data_to_write = merge_single_tender(payload)
     else:
-        data_to_write = payload  # already a single merged object
+        data_to_write = payload
 
-    # Generate Excel (this function takes either dict or list of dict)
     stream = generate_excel_from_result(data_to_write, filename="analyzed_tender.xlsx")
     headers = {"Content-Disposition": 'attachment; filename="analyzed_tender.xlsx"'}
     return StreamingResponse(
@@ -231,12 +218,20 @@ async def update_company_profile(request: Request):
     profile.update_profile(data)
     return {"status": "ok"}
 
+
 @app.post("/generate_template")
 async def generate_template(request: TemplateRequest):
-    buffer = generate_filled_template(request.template_name, request.values)
+    try:
+        buffer = generate_filled_template(request.template_name, request.values)
 
-    return StreamingResponse(
-        buffer,
-        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        headers={"Content-Disposition": f"attachment; filename={request.template_name}_filled.docx"}
-    )
+        return StreamingResponse(
+            buffer,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={
+                "Content-Disposition": f"attachment; filename={request.template_name}_filled.docx"
+            },
+        )
+    except Exception as e:
+        print("❌ Template generation failed:", e)
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
