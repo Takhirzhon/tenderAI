@@ -25,3 +25,4 @@ pandas
 
 # Optional: If using typing support or linting
 typing-extensions
+python-multipart
