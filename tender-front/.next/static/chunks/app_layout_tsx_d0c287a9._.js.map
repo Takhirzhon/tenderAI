@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/tashmatov/TenderAI/tender-front/app/layout.tsx"],"sourcesContent":["// components/ClientTime.tsx\r\n\"use client\"\r\nimport { useEffect, useState } from \"react\"\r\n\r\nexport default function ClientTime() {\r\n  const [now, setNow] = useState<string>(\"\")\r\n  useEffect(() => {\r\n    setNow(new Date().toLocaleTimeString())\r\n  }, [])\r\n  return <span>{now}</span>\r\n}\r\n"],"names":[],"mappings":"AAAA,4BAA4B;;;;;AAE5B;;;AADA;;AAGe,SAAS;;IACtB,MAAM,CAAC,KAAK,OAAO,GAAG,CAAA,GAAA,6JAAA,CAAA,WAAQ,AAAD,EAAU;IACvC,CAAA,GAAA,6JAAA,CAAA,YAAS,AAAD;gCAAE;YACR,OAAO,IAAI,OAAO,kBAAkB;QACtC;+BAAG,EAAE;IACL,qBAAO,6LAAC;kBAAM;;;;;;AAChB;GANwB;KAAA","debugId":null}}]
+}
